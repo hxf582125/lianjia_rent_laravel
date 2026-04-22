@@ -82,9 +82,8 @@ class AdminController extends Controller
 
     private function calculateTotalPriceSum($query)
     {
-        $houses = $query->select('total_price')->get();
         $sum = 0;
-        foreach ($houses as $house) {
+        foreach ($query->select('total_price')->cursor() as $house) {
             $price = (float) str_replace(',', '', $house->total_price);
             $sum += $price;
         }
