@@ -60,6 +60,25 @@
             font-size: 0.9rem;
             opacity: 0.9;
         }
+        .page-item.active .page-link {
+            background-color: #2563eb;
+            border-color: #2563eb;
+        }
+        .page-link {
+            color: #2563eb;
+            border-radius: 0.375rem;
+            margin: 0 2px;
+        }
+        .page-link:hover {
+            color: #1d4ed8;
+        }
+        .page-item:first-child .page-link,
+        .page-item:last-child .page-link {
+            border-radius: 0.375rem;
+        }
+        .pagination {
+            margin-bottom: 0;
+        }
     </style>
 </head>
 <body>

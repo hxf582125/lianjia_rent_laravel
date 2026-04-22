@@ -52,13 +52,16 @@ class AdminController extends Controller
         $monthlyStats = $this->getMonthlyStats(clone $query);
         $layoutStats = $this->getLayoutStats(clone $query);
 
-        $availableYears = House::selectRaw('YEAR(deal_date) as year')
+        $availableYears = House::selectRaw('LEFT(deal_date, 4) as year')
             ->whereNotNull('deal_date')
             ->where('deal_date', '!=', '')
+            ->whereRaw('LENGTH(deal_date) >= 4')
             ->groupBy('year')
             ->orderBy('year', 'desc')
             ->pluck('year')
-            ->filter()
+            ->filter(function ($year) {
+                return is_numeric($year) && $year > 0;
+            })
             ->values()
             ->toArray();
 
@@ -101,17 +104,21 @@ class AdminController extends Controller
     private function getMonthlyStats($query)
     {
         return $query->select(
-            DB::raw('YEAR(deal_date) as year'),
-            DB::raw('MONTH(deal_date) as month'),
+            DB::raw('LEFT(deal_date, 4) as year'),
+            DB::raw('SUBSTRING(deal_date, 6, 2) as month'),
             DB::raw('count(*) as count')
         )
             ->whereNotNull('deal_date')
             ->where('deal_date', '!=', '')
+            ->whereRaw('LENGTH(deal_date) >= 7')
             ->groupBy('year', 'month')
             ->orderBy('year', 'desc')
             ->orderBy('month', 'desc')
             ->limit(12)
             ->get()
+            ->filter(function ($item) {
+                return is_numeric($item->year) && is_numeric($item->month) && $item->month >= 1 && $item->month <= 12;
+            })
             ->map(function ($item) {
                 $item->year_month = $item->year . '-' . str_pad($item->month, 2, '0', STR_PAD_LEFT);
                 return $item;

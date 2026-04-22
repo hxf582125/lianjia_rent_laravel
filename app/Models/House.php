@@ -74,11 +74,12 @@ class House extends Model
         }
 
         if (isset($filters['year']) && $filters['year'] !== '') {
-            $query->whereYear('deal_date', $filters['year']);
+            $query->where('deal_date', 'like', $filters['year'] . '%');
         }
 
         if (isset($filters['month']) && $filters['month'] !== '') {
-            $query->whereMonth('deal_date', $filters['month']);
+            $monthStr = str_pad($filters['month'], 2, '0', STR_PAD_LEFT);
+            $query->whereRaw("SUBSTRING(deal_date, 6, 2) = ?", [$monthStr]);
         }
 
         return $query;
