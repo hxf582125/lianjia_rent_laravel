@@ -4,10 +4,25 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * 房源模型类
+ * 
+ * 对应数据库表 houses，用于房源数据的操作和查询
+ */
 class House extends Model
 {
+    /**
+     * 表名
+     * 
+     * @var string
+     */
     protected $table = 'houses';
 
+    /**
+     * 可批量赋值的字段
+     * 
+     * @var array<int, string>
+     */
     protected $fillable = [
         'biz_key',
         'community',
@@ -39,6 +54,19 @@ class House extends Model
         'payload_json',
     ];
 
+    /**
+     * 筛选条件作用域
+     * 
+     * 应用各种筛选条件到查询中
+     * 
+     * 注意：
+     * - deal_date 字段是 varchar 类型，格式为 'YYYY-MM-DD'
+     * - 因此使用字符串操作（LIKE、SUBSTRING）而非日期函数
+     * 
+     * @param \Illuminate\Database\Eloquent\Builder $query 查询构建器
+     * @param array $filters 筛选条件数组
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
     public function scopeFilter($query, $filters)
     {
         if (isset($filters['community']) && $filters['community'] !== '') {
@@ -58,11 +86,11 @@ class House extends Model
         }
 
         if (isset($filters['price_min']) && $filters['price_min'] !== '') {
-            $query->whereRaw('CAST(total_price AS DECIMAL(10,2)) >= ?', [$filters['price_min']]);
+            $query->whereRaw('CAST(REPLACE(total_price, ",", "") AS DECIMAL(12,2)) >= ?', [$filters['price_min']]);
         }
 
         if (isset($filters['price_max']) && $filters['price_max'] !== '') {
-            $query->whereRaw('CAST(total_price AS DECIMAL(10,2)) <= ?', [$filters['price_max']]);
+            $query->whereRaw('CAST(REPLACE(total_price, ",", "") AS DECIMAL(12,2)) <= ?', [$filters['price_max']]);
         }
 
         if (isset($filters['deal_date_start']) && $filters['deal_date_start'] !== '') {
@@ -85,11 +113,25 @@ class House extends Model
         return $query;
     }
 
+    /**
+     * 获取数值类型的总价
+     * 
+     * 移除千分位逗号后转换为浮点数
+     * 
+     * @return float
+     */
     public function getNumericTotalPriceAttribute()
     {
         return (float) str_replace(',', '', $this->total_price);
     }
 
+    /**
+     * 获取数值类型的面积
+     * 
+     * 移除千分位逗号后转换为浮点数
+     * 
+     * @return float
+     */
     public function getNumericAreaAttribute()
     {
         return (float) str_replace(',', '', $this->area);
