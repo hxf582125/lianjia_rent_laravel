@@ -107,26 +107,9 @@
             </div>
         </div>
         @if ($houses->hasPages())
-            <div class="card-footer d-flex justify-content-between align-items-center">
-                <div class="text-muted">
-                    显示 {{ $houses->firstItem() }} - {{ $houses->lastItem() }} 条，共 {{ $houses->total() }} 条
-                </div>
-                <div>
-                    {{ $houses->links() }}
-                </div>
+            <div class="card-footer bg-white border-top">
+                {{ $houses->links('vendor.pagination.bootstrap-5') }}
             </div>
         @endif
     </div>
-@endsection
-
-@section('scripts')
-    <style>
-        .pagination {
-            margin-bottom: 0;
-        }
-        .page-item.active .page-link {
-            background-color: #2563eb;
-            border-color: #2563eb;
-        }
-    </style>
 @endsection
